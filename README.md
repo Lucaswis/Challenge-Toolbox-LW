@@ -90,7 +90,7 @@ npm run lint
 
 All endpoints require `Authorization: Bearer toolbox-api-key`.
 
-Interactive docs available at `http://localhost:3000/api-docs` once the server is running.
+Interactive docs (Swagger UI) available at `http://localhost:3000/api-docs`. OpenAPI spec at `http://localhost:3000/api-docs/openapi.json`. Both routes are public — no API key required.
 
 ## External API
 
