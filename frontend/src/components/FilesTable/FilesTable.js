@@ -33,7 +33,13 @@ function FilesTable ({ data, loading, error }) {
   }
 
   return (
-    <Table striped bordered hover>
+    <Table striped bordered hover style={{ tableLayout: 'fixed' }}>
+      <colgroup>
+        <col style={{ width: '25%' }} />
+        <col style={{ width: '25%' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '35%' }} />
+      </colgroup>
       <thead>
         <tr>
           <th>{t('fileName')}</th>

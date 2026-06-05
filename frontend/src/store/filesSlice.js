@@ -31,11 +31,15 @@ const filesSlice = createSlice({
     data: [],
     selectedFile: '',
     loading: false,
-    error: null
+    error: null,
+    filters: { text: '', number: '', hex: '' }
   },
   reducers: {
     setSelectedFile: (state, action) => {
       state.selectedFile = action.payload
+    },
+    setFilter: (state, action) => {
+      state.filters[action.payload.field] = action.payload.value
     }
   },
   extraReducers: (builder) => {
@@ -58,5 +62,5 @@ const filesSlice = createSlice({
   }
 })
 
-export const { setSelectedFile } = filesSlice.actions
+export const { setSelectedFile, setFilter } = filesSlice.actions
 export default filesSlice.reducer
