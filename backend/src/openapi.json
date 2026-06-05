@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Challenge Toolbox API",
+    "description": "REST API that fetches, parses, and exposes CSV file data from an external source.\n\nAuthentication: all `/files/*` endpoints require `Authorization: Bearer toolbox-api-key`.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local development" }
+  ],
+  "security": [
+    { "bearerAuth": [] }
+  ],
+  "paths": {
+    "/files/list": {
+      "get": {
+        "summary": "List available files",
+        "description": "Returns the list of available CSV filenames from the external API.",
+        "responses": {
+          "200": {
+            "description": "File list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["file1.csv", "file2.csv", "test3.csv"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/files/data": {
+      "get": {
+        "summary": "Get formatted file data",
+        "description": "Fetches all CSV files (or a specific one via `fileName`), parses their content, and returns structured data. Lines with missing or invalid fields are silently discarded.",
+        "parameters": [
+          {
+            "name": "fileName",
+            "in": "query",
+            "required": false,
+            "description": "Filter results to a single file. Must be a valid `.csv` filename.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._-]+\\.csv$",
+              "example": "test3.csv"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Parsed file data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/FileData" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid fileName parameter",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "error": "fileName must be a valid .csv filename (e.g. file1.csv)" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Use `toolbox-api-key` as the token value."
+      }
+    },
+    "schemas": {
+      "FileLine": {
+        "type": "object",
+        "required": ["text", "number", "hex"],
+        "properties": {
+          "text": { "type": "string", "example": "RgTya" },
+          "number": { "type": "number", "example": 64075909 },
+          "hex": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32,
+            "example": "70ad29aacf0b690b0467fe2b2767f765"
+          }
+        }
+      },
+      "FileData": {
+        "type": "object",
+        "required": ["file", "lines"],
+        "properties": {
+          "file": { "type": "string", "example": "file1.csv" },
+          "lines": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FileLine" }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid API key",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "error": "Unauthorized. A valid API key is required." }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Unexpected server error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  }
+}

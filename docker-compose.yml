@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: challenge-toolbox-backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: challenge-toolbox-frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped
